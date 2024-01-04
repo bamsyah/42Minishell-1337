@@ -5,28 +5,51 @@
 #                                                     +:+ +:+         +:+      #
 #    By: bamsyah <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/12/06 11:37:46 by bamsyah           #+#    #+#              #
-#    Updated: 2023/12/06 11:41:24 by bamsyah          ###   ########.fr        #
+#    Created: 2023/10/17 08:31:30 by bkaztaou          #+#    #+#              #
+#    Updated: 2024/01/04 20:20:02 by bamsyah          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-Name = minishell
+NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
+READLINE = -lreadline
+LIBFT = -L./libft -lft
 
-SRC = 
+FILES = ./src/minishell.c \
+			$(wildcard ./src/parser/*.c) $(wildcard ./src/lexer/*.c) \
+			$(wildcard ./src/utils/*.c) $(wildcard ./src/debug/*.c) \
+			$(wildcard ./src/execution/builtins/*.c) \
+			$(wildcard ./src/execution/*.c)
+OBJ = $(FILES:.c=.o)
 
-OBJ = 
+GREEN = \033[0;32m
+ORANGE = \033[0;33m
+RED = \033[0;31m
+NC = \033[0m
 
-all: $(Name)
+all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
+	@$(MAKE) -C ./libft >/dev/null
+	@echo "$(GREEN)Compiling libft...$(NC)"
+	@$(CC) $(CFLAGS) $(OBJ) $(READLINE) $(LIBFT) -o $(NAME) >/dev/null
+	@echo "$(ORANGE)Linking $(NAME)...$(NC)"
+
+$(OBJ): %.o: %.c
+	@$(CC) $(CFLAGS) -c $< -o $@ >/dev/null
+	@echo "$(GREEN)Compiling $<$(NC)"
 
 clean:
-	rm -rf $(OBJ)
+	@$(MAKE) -C ./libft fclean
+	@echo "$(RED)Cleaning libft...$(NC)"
+	@rm -rf $(OBJ)
+	@echo "$(RED)Cleaning objects...$(NC)"
 
 fclean: clean
-	rm -rf $(NAME)
+	@rm -rf $(NAME)
+	@echo "$(RED)Cleaning $(NAME)...$(NC)"
 
 re: fclean all
+
+.PHONY: all clean fclean re
